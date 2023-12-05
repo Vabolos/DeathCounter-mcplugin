@@ -1,0 +1,4 @@
+name: DeathCount
+version: '${project.version}'
+main: deathcount.deathcount.DeathCount
+api-version: '1.20'
