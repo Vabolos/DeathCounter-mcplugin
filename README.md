@@ -1,7 +1,3 @@
-Sure, here is a sample GitHub README for a Minecraft Spigot plugin that displays the death count per user in the user menu (tab):
-
----
-
 # Minecraft Death Count Plugin
 
 This plugin for Spigot servers allows server admins to track and display the death count per user directly in the user menu (tab). It provides a convenient way to monitor player deaths and can be useful for various gameplay and management purposes.
