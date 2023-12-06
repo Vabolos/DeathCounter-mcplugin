@@ -1,14 +1,16 @@
 package deathcount.deathcount;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -25,7 +27,7 @@ public final class DeathCount extends JavaPlugin implements Listener {
     private Map<String, Integer> deathCounts;
     private Scoreboard scoreboard;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private final File dataFile = new File(getDataFolder(), "counter.json");
+    private final File dataFile = new File(getDataFolder(), "..\\counter.json");
 
     @Override
     public void onEnable() {
@@ -40,9 +42,6 @@ public final class DeathCount extends JavaPlugin implements Listener {
 
         // Plugin startup logic
         getLogger().log(Level.INFO, "DeathCount is running!");
-
-        // Update player list initially on plugin enable
-        updatePlayerList();
     }
 
     @Override
@@ -59,11 +58,31 @@ public final class DeathCount extends JavaPlugin implements Listener {
 
         // Add new players to the death counts map if not already present
         if (!deathCounts.containsKey(playerName)) {
-            deathCounts.put(playerName, 0); // Set initial death count to 0
+            // Load the death count if the player exists in the file
+            int savedDeaths = loadPlayerDeathCount(playerName);
+            deathCounts.put(playerName, savedDeaths);
         }
 
         // Update player list upon join
         updatePlayerList();
+    }
+
+    // Method to load a player's death count from the file
+    private int loadPlayerDeathCount(String playerName) {
+        if (!dataFile.exists()) {
+            return 0; // Return 0 if the file doesn't exist
+        }
+
+        try (FileReader reader = new FileReader(dataFile)) {
+            Type type = new TypeToken<Map<String, Integer>>() {}.getType();
+            Map<String, Integer> storedData = gson.fromJson(reader, type);
+            if (storedData != null && storedData.containsKey(playerName)) {
+                return storedData.get(playerName); // Return the saved death count for the player
+            }
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Error loading death count for " + playerName, e);
+        }
+        return 0; // Return 0 if there's an error or the player doesn't exist in the file
     }
 
     @EventHandler
@@ -79,12 +98,13 @@ public final class DeathCount extends JavaPlugin implements Listener {
         updatePlayerList();
     }
 
+
     // Method to retrieve a player's death count
     private int getDeathCount(Player player) {
         return deathCounts.getOrDefault(player.getName(), 0);
     }
 
-    // Method to update the player list with death count
+    // Method to update the player list with death count and colors
     private void updatePlayerList() {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             String teamName = onlinePlayer.getName() + "_Deaths"; // Unique team identifier
@@ -94,9 +114,14 @@ public final class DeathCount extends JavaPlugin implements Listener {
             }
 
             int deathCount = getDeathCount(onlinePlayer);
+            ChatColor color = ChatColor.RED; // Default color is red
+
+            if (onlinePlayer.getName().equals(onlinePlayer.getName())) {
+                color = ChatColor.GREEN; // Set the color to green for the current player
+            }
 
             team.addEntry(onlinePlayer.getName());
-            team.setSuffix(" [" + deathCount + "] ");
+            team.setSuffix(" [" + color + deathCount + ChatColor.RESET + "]"); // Set color in the suffix
         }
     }
 
@@ -115,14 +140,19 @@ public final class DeathCount extends JavaPlugin implements Listener {
         return new HashMap<>(); // Return empty map if there's an error
     }
 
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        // Save death counts to the JSON file when a player leaves the server
+        saveDeathCounts();
+    }
+
     // Save death counts to the JSON file
     private void saveDeathCounts() {
         try (FileWriter writer = new FileWriter(dataFile)) {
             gson.toJson(deathCounts, writer);
+            writer.flush(); // Flushes the buffer to ensure data is written immediately
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Error saving death counts to file", e);
         }
     }
 }
-
-
