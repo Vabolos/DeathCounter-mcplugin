@@ -1,27 +1,36 @@
 package deathcount.deathcount;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
+import java.io.*;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
 
 public final class DeathCount extends JavaPlugin implements Listener {
 
     private Map<String, Integer> deathCounts;
     private Scoreboard scoreboard;
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final File dataFile = new File(getDataFolder(), "counter.json");
 
     @Override
     public void onEnable() {
-        // Initialize the death count map
-        deathCounts = new HashMap<>();
+        // Initialize the death count map and load data from JSON file
+        deathCounts = loadDeathCounts();
 
         // Create a new scoreboard
         scoreboard = Objects.requireNonNull(Bukkit.getScoreboardManager()).getMainScoreboard();
@@ -30,7 +39,7 @@ public final class DeathCount extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
 
         // Plugin startup logic
-        System.out.println("DeathCount is running!");
+        getLogger().log(Level.INFO, "DeathCount is running!");
 
         // Update player list initially on plugin enable
         updatePlayerList();
@@ -38,8 +47,23 @@ public final class DeathCount extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
-        System.out.println("DeathCount is shutting down!");
+        // Save death counts to the JSON file on plugin shutdown
+        saveDeathCounts();
+        getLogger().log(Level.INFO, "DeathCount is shutting down!");
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        String playerName = player.getName();
+
+        // Add new players to the death counts map if not already present
+        if (!deathCounts.containsKey(playerName)) {
+            deathCounts.put(playerName, 0); // Set initial death count to 0
+        }
+
+        // Update player list upon join
+        updatePlayerList();
     }
 
     @EventHandler
@@ -73,7 +97,32 @@ public final class DeathCount extends JavaPlugin implements Listener {
 
             team.addEntry(onlinePlayer.getName());
             team.setSuffix(" [" + deathCount + "] ");
+        }
+    }
 
+    // Load death counts from the JSON file
+    private Map<String, Integer> loadDeathCounts() {
+        if (!dataFile.exists()) {
+            return new HashMap<>(); // Return empty map if the file doesn't exist
+        }
+
+        try (FileReader reader = new FileReader(dataFile)) {
+            Type type = new TypeToken<Map<String, Integer>>() {}.getType();
+            return gson.fromJson(reader, type);
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Error loading death counts from file", e);
+        }
+        return new HashMap<>(); // Return empty map if there's an error
+    }
+
+    // Save death counts to the JSON file
+    private void saveDeathCounts() {
+        try (FileWriter writer = new FileWriter(dataFile)) {
+            gson.toJson(deathCounts, writer);
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Error saving death counts to file", e);
         }
     }
 }
+
+
