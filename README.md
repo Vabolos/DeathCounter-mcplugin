@@ -19,10 +19,6 @@ _(This plugin is created for Minecraft version: 1.20.2)_
 
 This plugin does not have any in-game commands (yet). For now it only displays the amount of deaths of each player.
 
-## Configuration
-
-The plugin allows for basic configuration through the `config.yml` file. You can customize the display format, enable/disable specific features, and more.
-
 ## Permissions
 
 This plugin operates without requiring any specific permissions. It functions seamlessly without necessitating access controls such as deathcount.view, deathcount.view.others, or deathcount.admin.
