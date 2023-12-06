@@ -11,7 +11,7 @@ _(This plugin is created for Minecraft version: 1.20.2)_
 
 ## Installation
 
-1. Download the plugin JAR file from the [releases](#) section or compile the source code.
+1. Download the plugin JAR file from the [releases](https://github.com/Vabolos/DeathCounter-mcplugin/releases) section or compile the source code.
 2. Place the JAR file into the `plugins` folder of your Spigot server.
 3. Start or reload the server.
 
