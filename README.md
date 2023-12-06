@@ -1,6 +1,7 @@
 # Minecraft Death Count Plugin
 
 This plugin for Spigot servers allows server admins to track and display the death count per user directly in the user menu (tab). It provides a convenient way to monitor player deaths and can be useful for various gameplay and management purposes.
+_(This plugin is created for Minecraft version: 1.20.2)_
 
 ## Features
 
@@ -16,11 +17,7 @@ This plugin for Spigot servers allows server admins to track and display the dea
 
 ## Usage
 
-Once the plugin is installed and the server is running, the death count per user will automatically display in the user menu (tab) for all players.
-
-### Commands
-
-- `/deathcount <player>`: View the death count of a specific player (Requires appropriate permissions).
+This plugin does not have any in-game commands (yet). For now it only displays the amount of deaths of each player.
 
 ## Configuration
 
@@ -28,9 +25,7 @@ The plugin allows for basic configuration through the `config.yml` file. You can
 
 ## Permissions
 
-- `deathcount.view`: Allows players to view their own death count.
-- `deathcount.view.others`: Allows players to view the death count of other players.
-- `deathcount.admin`: Grants administrative access to manage plugin settings and commands.
+This plugin operates without requiring any specific permissions. It functions seamlessly without necessitating access controls such as deathcount.view, deathcount.view.others, or deathcount.admin.
 
 ## Issues & Contributions
 
@@ -38,7 +33,7 @@ If you encounter any bugs or have suggestions for improvements, please create an
 
 ## License
 
-This plugin is licensed under the [MIT License](LICENSE).
+This plugin is released as unlicensed software.
 
 ---
 
