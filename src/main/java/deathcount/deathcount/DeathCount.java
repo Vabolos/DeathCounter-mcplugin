@@ -87,7 +87,8 @@ public final class DeathCount extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
+        event.getEntity();
+        Player player = (Player) event.getEntity();
         String playerName = player.getName();
 
         // Increment death count for the player
@@ -97,6 +98,7 @@ public final class DeathCount extends JavaPlugin implements Listener {
         // Update player list upon death
         updatePlayerList();
     }
+
 
 
     // Method to retrieve a player's death count
